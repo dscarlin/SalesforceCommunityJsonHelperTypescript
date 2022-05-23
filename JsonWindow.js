@@ -58,7 +58,6 @@ class JsonWindow{
         if(!this.parsed){
             const dataText = this.textElement.value;
             this.networkPayloadString = new SalesforceNetworkResponse(dataText).dataPayload;
-            console.log({networkPayloadString: this.networkPayloadString})
             this.textElement.value = this.prettyPrintDataJson;
         } else {
             this.textElement.value = ''

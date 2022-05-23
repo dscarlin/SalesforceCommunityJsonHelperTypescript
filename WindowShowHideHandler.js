@@ -57,6 +57,7 @@ class WindowShowHideHandler {
     }
     browserHistoryStateChangeHandler() {
         this.lastLocationChange = new Date().getTime();
+        this.window.exists = false;
         clearTimeout(this.pendingDelay); this.pendingDelay = null;
         this.delayedStart(2000);
     }
