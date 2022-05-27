@@ -5,7 +5,7 @@ class WindowShowHideHandler {
     //computed properties
     get window() {
         if (this._window) return this._window;
-        this._window = new DraggableElement(new JsonWindow())
+        this._window = new JsonWindow()
         return this._window
     }
     get button() {
@@ -15,7 +15,7 @@ class WindowShowHideHandler {
     }
     get parser_window() {
         if (this._parser_window) return this._parser_window;
-        this._parser_window = new DraggableElement(new JsonWindow('parser_'))
+        this._parser_window = new JsonWindow('parser_')
         return this._parser_window
     }
     get parser_button() {
@@ -78,7 +78,6 @@ class WindowShowHideHandler {
         const isNotSalesforce = !document.querySelector('[data-aura-rendered-by],[data-aura-class]')
         if(isNotSalesforce) return false;
         this.addButton('parser_')
-
         const numberOfOmniScripts = [
             ...document.querySelectorAll('[data-data-rendering-service-uid]')
             ].filter(i => i.jsonDataStr).length

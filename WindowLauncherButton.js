@@ -1,5 +1,6 @@
-class WindowLauncherButton {
+class WindowLauncherButton extends HTMLElement {
     constructor(parser) {
+        super();
         this.exists = false;
         this.isParser = !!parser
         this.create()
@@ -11,6 +12,7 @@ class WindowLauncherButton {
     //methods
     create() {
         this.button = document.createElement('button');
+        this.append(this.button);
         return this;
     }
     setHoverBehavior() {
@@ -73,7 +75,7 @@ class WindowLauncherButton {
     addToScreen() {
         this.exists = true;
         this.reInitialize();
-        document.body.append(this.button);
+        document.body.append(this);
         return true;
     }
     reInitialize() {
@@ -84,6 +86,6 @@ class WindowLauncherButton {
     remove(clickEvent) {
         this.exists = false;
         !!clickEvent && this.toggleOpacity()
-        this.button.remove();
+        super.remove();
     }
 }

@@ -1,16 +1,19 @@
-const scriptFile = fileName => { 
-    const script = document.createElement('script'); 
-    script.setAttribute('src', chrome.runtime.getURL(fileName)); 
-    return script;
+const scriptFileToElement = fileName => { 
+    const scriptElement = document.createElement('script'); 
+    scriptElement.setAttribute('src', chrome.runtime.getURL(fileName)); 
+    return scriptElement;
 }
-
-const scripts = [
-    "SalesforceNetworkResponse.js",
+const scriptFileNames = [
+    "DisplayField.js",
+    "ClickableBlock.js",
+    "Repeat.js",
+    "SalesforceNetworkPayload.js",
     "WindowLauncherButton.js", 
-    "DraggableElement.js", 
+    "DraggableMixin.js", 
     "JsonWindow.js", 
     "WindowShowHideHandler.js",
     "index.js" 
-].map(scriptFile);
+]
+const scriptElements = scriptFileNames.map(scriptFileToElement);
+document.body.append(...scriptElements);
 
-document.body.append(...scripts);

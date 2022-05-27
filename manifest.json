@@ -1,7 +1,7 @@
 {
-  "name": "OmniScript JSON Data Viewer",
-  "version": "0.1.0",
-  "description": "OmniScript JSON Data Viewer Window",
+  "name": "OmniStudio Sites JSON Helper",
+  "version": "0.1.1",
+  "description": "View OmniScript Data JSON running in Salesforce Community and parse network payloads easily",
   "manifest_version": 3,
   "content_scripts": [{
     "matches": ["<all_urls>"],
@@ -21,9 +21,12 @@
       "web_accessible_resources": [
         {
           "resources": [
-            "SalesforceNetworkResponse.js",
+            "DisplayField.js",
+            "ClickableBlock.js",
+            "Repeat.js",
+            "SalesforceNetworkPayload.js",
             "WindowLauncherButton.js", 
-            "DraggableElement.js", 
+            "DraggableMixin.js", 
             "JsonWindow.js", 
             "WindowShowHideHandler.js",
             "index.js" 
