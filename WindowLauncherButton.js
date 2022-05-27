@@ -67,7 +67,6 @@ class WindowLauncherButton extends HTMLElement {
         button.style.maxHeight = '3em'
         button.style.maxWidth = '3em'
     }
-
     setAddWindowCallback(addWindowCallback) {
         this.addWindow = addWindowCallback.bind(this);
         this.setClickListener();
