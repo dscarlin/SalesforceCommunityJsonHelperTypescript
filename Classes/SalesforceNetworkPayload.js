@@ -5,9 +5,9 @@ class SalesforceNetworkPayload {
         this.payload = this.errorMessage;
         this.metadata = []
         this.payloads = actions.map(this.parseAction.bind(this));
+        this.errorMessage = ({ Error: "Did not find Your value"})
     }
     //computed properties
-
     get inputNode() {
         this.trimMessageText()
         this._inputNode = this._inputNode || this.parse(this.jsonStr);
@@ -16,9 +16,6 @@ class SalesforceNetworkPayload {
             this._inputNode = { actions };
         }
         return this._inputNode;
-    }
-    get errorMessage() {
-        return ({ Error: "Did not find Your value"});
     }
     get parsedString() {
         const returnValue = this.payloads.length > 1 ? this.payloads : this.payload
@@ -43,7 +40,6 @@ class SalesforceNetworkPayload {
         this.metadata.push(this.currentMetadata);
         return this.payload;
     }
-    
     getParamsFromInputNode() {
         // Initial params from parsing input node 
         const { params, returnValue, result, callingDescriptor } = this.currentAction || {}
@@ -54,8 +50,10 @@ class SalesforceNetworkPayload {
         this.payload = result || returnValueNested || returnValue || paramsNested || params || this.errorMessage;
         this.payload = typeof this.payload === 'string' ? JSON.parse(this.payload || '{}') : this.payload;
 
+        // Secondary params
         let { sClassName, sMethodName, drBundle, type, resultType } = this.payload;
 
+        //attempt to target child payload node on class/method
         switch(classname){
             case 'ComponentController':
             case 'FlexRuntime':
@@ -103,6 +101,8 @@ class SalesforceNetworkPayload {
                     resultType = 'DataRaptor';
                 }
         }
+
+        //assign labels for parsed payload
         this.currentMetadata.className = classname;
         this.currentMetadata.methodName = method;
         this.currentMetadata.namespace = namespace;
@@ -111,39 +111,13 @@ class SalesforceNetworkPayload {
         this.currentMetadata.drBundle = drBundle;
         this.currentMetadata.type = type;
         this.currentMetadata.resultType = resultType;
-        if(!this.hasOneOrMoreLabels()){
+        if(!this.hasOneOrMoreLabels() && callingDescriptor){
             this.currentMetadata.callingDescriptor = callingDescriptor;
         }
 
-        // const paramsJSON = this.currentAction?.params?.params?.parametersJSON;
-        // const dataSourceMap = this.currentAction?.params?.params?.dataSourceMap;
-        // const drParams = this.currentAction?.params?.params?.input?.DRParams;
-        // const input = this.currentAction?.params?.params?.input;
-        // let returnValue = this.currentAction?.returnValue?.returnValue;
-        // const config = this.currentAction?.params?.params?.config;
-        // const result = this.currentAction?.result
-        // let params;
-        // !returnValue && (returnValue = this.currentAction?.returnValue);
-        // !paramsJSON && !dataSourceMap && !input && !config && !drParams && (params = this.currentAction?.params)
-
-        // this.payload =
-        //     paramsJSON || dataSourceMap || drParams ||
-        //     input || returnValue || config ||
-        //     result || params || this.errorMessage;
-
-        // this.parsed = typeof this.payload === 'string' ? JSON.parse(this.payload || '{}') : this.payload;
     }
     hasOneOrMoreLabels(){
         return Object.values(this.currentMetadata).some(v => v)
     }
-    // getSecondaryParamsFromInputNode() {
-    //     //Secondary set of params from parsing initial param node
-    //     const inputMap = this.parsed?.value?.inputMap && typeof this.parsed.value.inputMap === 'string' ? JSON.parse(this.parsed.value.inputMap) : null;
-    //     const drParams = this.parsed?.DRParams && typeof this.parsed.DRParams === 'object' ? this.parsed.DRParams : null;
-    //     const ipResult = this.parsed?.IPResult ? typeof this.parsed.IPResult === 'object' ? this.parsed.IPResult : this.parsed.IPResult : null;
-
-    //     this.payload = inputMap || drParams || ipResult || this.parsed;
-    //     this.parsed = '';
-    // }
 
 }
