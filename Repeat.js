@@ -24,6 +24,7 @@ class Repeat extends HTMLElement{
         this.onClickCallback(e, this);
     }
     update(elements){
+        this.elements = elements;
         this.reset();
         this.evaluate(elements);
     }
@@ -35,10 +36,9 @@ class Repeat extends HTMLElement{
         this.singleOrMultipleElementDisplay()
     }
     singleOrMultipleElementDisplay(){
-        const repeatedElement = elements.length > 1;
-        this.repeatedElementBox.style.overflow = repeatedElement ? 'scroll' : 'hidden'
-        repeatedElement && 
-            (this.numberOfResults.number = elements.length)
+        const repeat = this.elements.length > 1;
+        this.repeatedElementBox.style.overflow = repeat ? 'scroll' : 'hidden'
+        repeat && (this.numberOfResults.number = this.elements.length)
     }
     evaluate(elements){
         elements.forEach( (element, index) => {

@@ -1,4 +1,3 @@
-setTimeout(() => start())
 function start(){
     customElements.define('c-repeat', Repeat);
     customElements.define('c-json-window', JsonWindow);
@@ -7,3 +6,4 @@ function start(){
     customElements.define('c-window-launcher-button', WindowLauncherButton);
     new WindowShowHideHandler().delayedStart(5000);
 }
+start();

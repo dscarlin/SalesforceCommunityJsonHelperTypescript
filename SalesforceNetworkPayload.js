@@ -46,28 +46,26 @@ class SalesforceNetworkPayload {
     
     getParamsFromInputNode() {
         // Initial params from parsing input node 
-        const { params, returnValue, result } = this.currentAction || {}
+        const { params, returnValue, result, callingDescriptor } = this.currentAction || {}
         const { returnValue:returnValueNested } = returnValue || {};
         const { namespace, classname, method, params:paramsNested } = params || {};
-        // if(!(classname && method)){
-            //     return this.payload = params;
-            // }typeof this.payload === 'string' ? JSON.parse(this.payload || '{}') : this.payload
+     
         this.currentMetadata = {};
         this.payload = result || returnValueNested || returnValue || paramsNested || params || this.errorMessage;
         this.payload = typeof this.payload === 'string' ? JSON.parse(this.payload || '{}') : this.payload;
 
-        let { sClassName, sMethodName, drBundle, type } = this.payload;
+        let { sClassName, sMethodName, drBundle, type, resultType } = this.payload;
 
         switch(classname){
             case 'ComponentController':
             case 'FlexRuntime':
                 if(method == 'handleData'){
                     if(this.payload.dataSourceMap)
-                        this.payload = JSON.parse(this.payload.dataSourceMap)
+                        this.payload = JSON.parse(this.payload.dataSourceMap);
                         type = this.payload.type;
                         sMethodName = this.payload.value.ipMethod;
                         drBundle = this.payload.value.bundleName;
-                        this.payload = JSON.parse(this.payload.value?.inputMap || '{}')
+                        this.payload = JSON.parse(this.payload.value?.inputMap || '{}');
                 }
             break;
             case 'BusinessProcessDisplayController':
@@ -75,39 +73,48 @@ class SalesforceNetworkPayload {
                 switch(method){
                     case 'GenericInvoke2NoCont':
                         if(this.payload.input)
-                        this.payload = JSON.parse(this.payload.input)
+                            this.payload = JSON.parse(this.payload.input);
                         if(this.payload.Bundle && this.payload.DRParams){
-                            drBundle = this.payload.Bundle
-                            this.payload = this.payload.DRParams
+                            drBundle = this.payload.Bundle;
+                            this.payload = this.payload.DRParams;
+                        }
+                        if(this.payload.bundleName && this.payload.objectList){
+                            drBundle = this.payload.bundleName;
+                            this.payload = this.payload.objectList;
                         }
                         break;
                     case 'LWCPrep':
                         if(this.payload.config)
-                        this.payload = JSON.parse(this.payload.config)
+                        this.payload = JSON.parse(this.payload.config);
                         break;
                     case 'isCommunity':
                     case 'getNewportUrl':
                     case 'getCommunityName':
-                    
                         this.payload = {}
-                        break;
+                    }
+                    break;
+            default:
+                if(this.payload.IPResult){
+                    this.payload = this.payload.IPResult;
+                    resultType = 'Integration Procedure';
                 }
-              
-                
-            break;
+                if(this.payload.OBDRresp){
+                    this.payload = this.payload.OBDRresp;
+                    resultType = 'DataRaptor';
+                }
         }
-
         this.currentMetadata.className = classname;
         this.currentMetadata.methodName = method;
         this.currentMetadata.namespace = namespace;
         this.currentMetadata.sClassName = sClassName;
         this.currentMetadata.sMethodName = sMethodName;
         this.currentMetadata.drBundle = drBundle;
-        this.currentMetadata.type = type
+        this.currentMetadata.type = type;
+        this.currentMetadata.resultType = resultType;
+        if(!this.hasOneOrMoreLabels()){
+            this.currentMetadata.callingDescriptor = callingDescriptor;
+        }
 
-       
-        
-       
         // const paramsJSON = this.currentAction?.params?.params?.parametersJSON;
         // const dataSourceMap = this.currentAction?.params?.params?.dataSourceMap;
         // const drParams = this.currentAction?.params?.params?.input?.DRParams;
@@ -126,14 +133,17 @@ class SalesforceNetworkPayload {
 
         // this.parsed = typeof this.payload === 'string' ? JSON.parse(this.payload || '{}') : this.payload;
     }
-    getSecondaryParamsFromInputNode() {
-        //Secondary set of params from parsing initial param node
-        const inputMap = this.parsed?.value?.inputMap && typeof this.parsed.value.inputMap === 'string' ? JSON.parse(this.parsed.value.inputMap) : null;
-        const drParams = this.parsed?.DRParams && typeof this.parsed.DRParams === 'object' ? this.parsed.DRParams : null;
-        const ipResult = this.parsed?.IPResult ? typeof this.parsed.IPResult === 'object' ? this.parsed.IPResult : this.parsed.IPResult : null;
-
-        this.payload = inputMap || drParams || ipResult || this.parsed;
-        this.parsed = '';
+    hasOneOrMoreLabels(){
+        return Object.values(this.currentMetadata).some(v => v)
     }
+    // getSecondaryParamsFromInputNode() {
+    //     //Secondary set of params from parsing initial param node
+    //     const inputMap = this.parsed?.value?.inputMap && typeof this.parsed.value.inputMap === 'string' ? JSON.parse(this.parsed.value.inputMap) : null;
+    //     const drParams = this.parsed?.DRParams && typeof this.parsed.DRParams === 'object' ? this.parsed.DRParams : null;
+    //     const ipResult = this.parsed?.IPResult ? typeof this.parsed.IPResult === 'object' ? this.parsed.IPResult : this.parsed.IPResult : null;
+
+    //     this.payload = inputMap || drParams || ipResult || this.parsed;
+    //     this.parsed = '';
+    // }
 
 }

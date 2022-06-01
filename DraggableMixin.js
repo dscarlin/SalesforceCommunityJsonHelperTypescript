@@ -1,4 +1,4 @@
-const DraggableMixin = superClass => (class extends superClass {
+var DraggableMixin = superClass => (class extends superClass {
     constructor(){
         super()
         this.pos1 = 0;

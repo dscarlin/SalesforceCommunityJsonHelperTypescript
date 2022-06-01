@@ -1,8 +1,3 @@
-const scriptFileToElement = fileName => { 
-    const scriptElement = document.createElement('script'); 
-    scriptElement.setAttribute('src', chrome.runtime.getURL(fileName)); 
-    return scriptElement;
-}
 const scriptFileNames = [
     "DisplayField.js",
     "ClickableBlock.js",
@@ -13,7 +8,18 @@ const scriptFileNames = [
     "JsonWindow.js", 
     "WindowShowHideHandler.js",
     "index.js" 
-]
-const scriptElements = scriptFileNames.map(scriptFileToElement);
-document.body.append(...scriptElements);
+];
+const scriptFileToElement = (index=0) => { 
+    const fileName = scriptFileNames[index]
+    if(!fileName) return;
+    const scriptElement = document.createElement('script'); 
+    scriptElement.setAttribute('src', chrome.runtime.getURL(fileName)); 
+    document.body.append(scriptElement);
+    setTimeout(() => scriptFileToElement(index + 1));
+}
+scriptFileToElement();
+
+
+
+
 

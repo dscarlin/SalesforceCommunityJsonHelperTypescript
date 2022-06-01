@@ -146,13 +146,15 @@ class JsonWindow extends DraggableMixin(HTMLElement) {
     }
     fieldLabelsAndValues(payload){
         return  Object.entries({
+            'Calling Descriptor: ': payload.callingDescriptor || "",
             'Class : ': payload.className || "",
             'Method: ': payload.methodName || "",
             'Namespace: ': payload.namespace || "",
             'sClass: ': payload.sClassName || "",
             'Type: ': payload.type || "",
             'sMethod: ': payload.sMethodName || "",
-            'DataRaptor: ': payload.drBundle || ""
+            'DataRaptor: ': payload.drBundle || "",
+            'Result Type: ': payload.resultType || ""
         }).map(([label,value]) => new DisplayField({label, value}))
     }
     toggleParse(){
@@ -187,39 +189,35 @@ class JsonWindow extends DraggableMixin(HTMLElement) {
             child.isSelected = false
         })
     }  
-    updateTextAreaWidth(e){
-        console.log('updateTextArea')
+    updateTextAreaWidth(){
         if(!this.expandedHeight && !this.parsed) {
             this.displayElement.style.height = 'auto';
         }
-        if(this.parsed){
+        if(this.parsing){
+            this.parsing = false;
             //get widest element being added 
             let width = 0;
             const repeatElements = [...this.repeatableData.repeatedElementBox.children]
                 repeatElements.map(repeatElement => repeatElement.root && 
                     [...repeatElement.root.children] //fields
-                    .map(field => 
+                    .map(field => {
+                        field.showCopyToolTip();
+
                         field.clientWidth > width && (width = field.clientWidth)
-                    )
+                        field.hideCopyToolTip();
+                    })
                 )
-            //update width
-            if(this.parsing){
-                const hasMinWidth = width;
-                this.parsing = false;
-                if(hasMinWidth){
+                if(width){
+                    //update width
                     this.textElement.style.width = `calc(${width}px + 1rem`;
                     this.textElement.style.minWidth = `calc(${width}px + 1rem`;
                     this.textElement.style.height = `calc(${width}px - 4rem`
                 } else {
-                    //custom non-restrictive widen
+                    //default widened width
                     this.textElement.style.width = '20rem';
                     this.textElement.style.height = '15rem';
-
                 }
             }
-            // this.textElement.style.height = 'auto'
-        }
-
     }
     
 
@@ -262,6 +260,7 @@ class JsonWindow extends DraggableMixin(HTMLElement) {
         if (this.parsed) {
             this.toggleParse()
         }
+        this.repeatableData.update([]);    
         this.displayElement.style.top = this.isParser ? '27%' : '12%';
         this.displayElement.style.left = '75%';
         this.textElement.style.height = 'initial';
