@@ -30,13 +30,16 @@ class SalesforceNetworkPayload {
         return val || '';
     }
     trimMessageText(){
-        if(this.jsonStr && this.jsonStr.length > 9 && this.jsonStr.substring(0,9) == 'message: ') 
-            this.jsonStr = this.jsonStr.slice(9)
+        const jsonStr = !!this.jsonStr;
+        const longerThanNineChars = this.jsonStr.length > 9;
+        const stringBeginsWithMessageColon = jsonStr && longerThanNineChars &&  this.jsonStr.substring(0,9) == 'message: '
+
+        if(stringBeginsWithMessageColon) 
+            this.jsonStr = this.jsonStr.slice(9);
     }
     parseAction(currentAction) {
         this.currentAction = currentAction;
         this.getParamsFromInputNode();
-        // this.getSecondaryParamsFromInputNode();
         this.metadata.push(this.currentMetadata);
         return this.payload;
     }

@@ -1,37 +1,33 @@
 {
-  "name": "OmniStudio Sites JSON Helper",
+  "name": "OmniStudio Community JSON Helper",
   "version": "0.1.1",
-  "description": "View OmniScript Data JSON running in Salesforce Community and parse network payloads easily",
+  "description": "View OmniScript Data JSON running in Salesforce Community and parse network payloads easily.",
   "manifest_version": 3,
-  "content_scripts": [{
-    "matches": ["https://*.force.com/*"],
-    "js": ["InitializingScripts/loadContentScripts.js"]
-}],
-"browser_action": {
-    "default_icon": "Assets/jsonIcon.png",
-    "icons": {
-     
-      "128": "Assets/jsonIcon.png"
+  "content_scripts": [
+    {
+      "matches": ["https://*.force.com/*"],
+      "js": ["InitializingScripts/loadContentScripts.js"]
     }
-},
-    "icons": {
-        "128": "Assets/jsonIcon.png"
-      },
-   
-      "web_accessible_resources": [
-        {
-          "resources": [
-            "CustomElements/HelperElements/DisplayField.js",
-            "CustomElements/HelperElements/ClickableBlock.js",
-            "CustomElements/HelperElements/Repeat.js",
-            "Classes/SalesforceNetworkPayload.js",
-            "CustomElements/PageElements/WindowLauncherButton.js", 
-            "Classes/DraggableMixin.js", 
-            "CustomElements/PageElements/JsonWindow.js", 
-            "Classes/WindowShowHideHandler.js",
-            "InitializingScripts/index.js" 
-        ],
-          "matches": [ "https://*.force.com/*" ]
-        }
-      ]
+  ],
+
+  "icons": {
+    "128": "Assets/jsonIcon.png"
+  },
+
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "CustomElements/HelperElements/DisplayField.js",
+        "CustomElements/HelperElements/ClickableBlock.js",
+        "CustomElements/HelperElements/Repeat.js",
+        "Classes/SalesforceNetworkPayload.js",
+        "CustomElements/PageElements/WindowLauncherButton.js",
+        "Classes/DraggableMixin.js",
+        "CustomElements/PageElements/JsonWindow.js",
+        "Classes/WindowShowHideHandler.js",
+        "InitializingScripts/index.js"
+      ],
+      "matches": ["https://*.force.com/*"]
+    }
+  ]
 }

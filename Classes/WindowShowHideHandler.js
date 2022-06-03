@@ -44,22 +44,30 @@ class WindowShowHideHandler {
             window.dispatchEvent(new Event('locationchange'));
         });
 
-        window.addEventListener('locationchange', this.browserHistoryStateChangeHandler.bind(this));
+        window.addEventListener('locationchange', this.newDataJsonWindow.bind(this));
     }
-    delayedStart(delay, count = 0) {
+    delayedStart(delay, tries = 0) {
+        const maximumAmountOfTries = 15
         const time = new Date().getTime();
-        const added = this.addLauncherButtonsIfApplicable()
-        if (!added && count < 15 || time - this.lastLocationChange < 5000) {
-            count++
-            this.pendingDelay = setTimeout(() => this.delayedStart(delay, count), delay);
+        const buttonAddedToScreen = this.addLauncherButtonsIfApplicable()
+        const notAddedAndStillRemainingTries = !buttonAddedToScreen && tries < maximumAmountOfTries
+        const locationChangeWithinTheLastFiveSeconds = time - this.lastLocationChange < 5000
+        const shouldStartAgainAfterDelay = notAddedAndStillRemainingTries || locationChangeWithinTheLastFiveSeconds
+        
+        if (shouldStartAgainAfterDelay) {
+            tries++
+            this.pendingDelay = setTimeout(() => this.delayedStart(delay, tries), delay);
         }
-
     }
-    browserHistoryStateChangeHandler() {
-        this.lastLocationChange = new Date().getTime();
+    newDataJsonWindow() {
+        const currentTime = new Date().getTime();
+        this.lastLocationChange = currentTime;
         this.window.exists = false;
-        clearTimeout(this.pendingDelay); this.pendingDelay = null;
+        this.resetPendingDelay();
         this.delayedStart(2000);
+    }
+    resetPendingDelay(){
+        clearTimeout(this.pendingDelay); this.pendingDelay = null;
     }
     allowWindowAndButtonToAddAndRemoveEachOther(parser=''){
         const { 
@@ -70,7 +78,7 @@ class WindowShowHideHandler {
         window.setAddButtonCallback( button.addToScreen.bind( button));
         window.setRemoveButtonCallback( button.remove.bind( button));
     }
-    removeButtonIfExists(){
+    removeButton(){
         this.button.exists &&  this.button.remove();
 
     }
@@ -82,20 +90,20 @@ class WindowShowHideHandler {
             ...document.querySelectorAll('[data-data-rendering-service-uid]')
             ].filter(i => i.jsonDataStr).length
         if(numberOfOmniScripts !== 1) {
-            this.removeButtonIfExists()
+            this.removeButton()
             return false;
         }
         this.addButton();
         return true;
     }
     addButton(parser=''){
-        this.allowWindowAndButtonToAddAndRemoveEachOther(parser)
         const { 
             [`${parser}window`]: window, 
             [`${parser}button`]: button 
         } = this
         if(!button.exists && !window.exists){
-                button.addToScreen();
+            button.addToScreen();
+            this.allowWindowAndButtonToAddAndRemoveEachOther(parser)
         }
     }
 

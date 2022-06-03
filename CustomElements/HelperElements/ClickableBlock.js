@@ -7,6 +7,9 @@ class ClickableBlock extends HTMLElement{
         this.root.style.padding = '1rem .5rem';
         this.root.style.cursor = 'pointer';        
     }
+    get isSelected(){
+        return this._isSelected;
+    }
     set isSelected(bool){
         this._isSelected = bool;
         if(bool){
@@ -25,10 +28,7 @@ class ClickableBlock extends HTMLElement{
     }
     get singleSelect(){
         return this._singleSelect;
-    }
-    get isSelected(){
-        return this._isSelected;
-    }
+    }   
     connectedCallback(){
         if(![...this.children].length){
             this.append(this.root, true);
