@@ -1,13 +1,5 @@
 const scriptFileNames = [
-    "CustomElements/HelperElements/DisplayField.js",
-    "CustomElements/HelperElements/ClickableBlock.js",
-    "CustomElements/HelperElements/Repeat.js",
-    "Classes/SalesforceNetworkPayload.js",
-    "CustomElements/PageElements/WindowLauncherButton.js", 
-    "Classes/DraggableMixin.js", 
-    "CustomElements/PageElements/JsonWindow.js", 
-    "Classes/WindowShowHideHandler.js",
-    "InitializingScripts/index.js" 
+    "Scripts/bundle.js" 
 ];
 const scriptFilesToElements = (scriptFileNames, index=0) => { 
     const fileName = scriptFileNames[index]

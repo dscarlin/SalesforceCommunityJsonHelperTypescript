@@ -1,9 +1,18 @@
-class DisplayField extends HTMLElement{
-    constructor(field){
+import ClickableBlock from './ClickableBlock'
+import { Field } from '../../Types'
+
+export default class DisplayField extends HTMLElement{
+    constructor(field:Field){
         super();
         this.labelValue = field.label;
         this.textValue = field.value;
     }
+    /* properties */
+    labelValue: string;
+    textValue: string;
+    text: HTMLSpanElement;
+    copyToolTip: HTMLSpanElement
+    label: HTMLElement
     /* computed properties */
     set textContent(val) {
         this.style.display = val ?  'block' : 'none';
@@ -40,15 +49,16 @@ class DisplayField extends HTMLElement{
         this.textContent = this.textValue; 
         this.text.addEventListener('click', this.handleClickCopy);
     }
-    handleClickCopy(e){
-        const clickableBlock = this.parentElement.parentElement.parentElement;
+    handleClickCopy(e: PointerEvent){
+        const clickableBlock = this.parentElement.parentElement.parentElement as ClickableBlock;
         if(!clickableBlock.isSelected && !clickableBlock.singleSelect){
             return;
         } 
         e.stopPropagation();
-        this.parentElement.showCopyToolTip();
+        const parent = this.parentElement as DisplayField;
+        parent.showCopyToolTip();
         navigator.clipboard.writeText(this.textContent);
-        setTimeout(() => this.parentElement.hideCopyToolTip(), 500);
+        setTimeout(() => parent.hideCopyToolTip(), 500);
     }
     showCopyToolTip(){
         this.copyToolTip.style.visibility = 'visible';

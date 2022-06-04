@@ -1,0 +1,25 @@
+{
+  "name": "jsonwindowts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://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@github.com/dscarlin/SalesforceCommunityJSONHelper.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dscarlin/SalesforceCommunityJSONHelper/issues"
+  },
+  "homepage": "https://github.com/dscarlin/SalesforceCommunityJSONHelper#readme",
+  "devDependencies": {
+    "terser-webpack-plugin": "^5.3.3",
+    "ts-loader": "^9.3.0",
+    "typescript": "^4.7.3",
+    "webpack-cli": "^4.9.2"
+  }
+}

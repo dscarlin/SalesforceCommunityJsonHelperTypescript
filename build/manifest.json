@@ -1,0 +1,26 @@
+{
+  "name": "Test OmniStudio Community JSON Helper",
+  "version": "0.1.1",
+  "description": "View OmniScript Data JSON running in Salesforce Community and parse network payloads easily.",
+  "manifest_version": 3,
+  "content_scripts": [
+    {
+      "matches": ["https://*.force.com/*"],
+      "js": ["Scripts/loadContentScripts.js"]
+    }
+  ],
+
+  "icons": {
+    "128": "Assets/jsonIcon.png"
+  },
+
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "Scripts/bundle.js" 
+
+      ],
+      "matches": ["https://*.force.com/*"]
+    }
+  ]
+}

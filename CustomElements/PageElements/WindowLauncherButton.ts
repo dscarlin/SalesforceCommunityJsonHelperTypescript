@@ -1,7 +1,9 @@
-class WindowLauncherButton extends HTMLElement {
-    constructor(parser) {
+
+import { VoidEventCallback } from '../../Types'
+
+export default class WindowLauncherButton extends HTMLElement {
+    constructor(parser: string = '') {
         super();
-        this.exists = false;
         this.isParser = !!parser
         this.create()
             .setHoverBehavior()
@@ -9,6 +11,11 @@ class WindowLauncherButton extends HTMLElement {
             .setText()
         this.toggleOpacity = this.toggleOpacity.bind(this)
     }
+
+    exists: boolean = false;
+    isParser: boolean;
+    button: HTMLButtonElement;
+    addWindow: VoidEventCallback;
     //methods
     create() {
         this.button = document.createElement('button');
@@ -34,16 +41,16 @@ class WindowLauncherButton extends HTMLElement {
         this.button.addEventListener('click', this.addWindow);
         return this;
     }
-    toggleOpacity(e) {
-        if (this.button.dataset.bright === 'true') {
-            this.setAsBright();
-        } else {
+    toggleOpacity(e?: PointerEvent) {
+        if (this.button.dataset.bright === 'true' || !e) {
             this.setAsDull();
+        } else {
+            this.setAsBright();
         }
     }
-    setAsBright() {
+    setAsDull() {
         const button = this.button
-        button.style.opacity = .6;
+        button.style.opacity = '.6';
         button.dataset.bright = 'false';
         
         if (this.isParser) {
@@ -55,9 +62,9 @@ class WindowLauncherButton extends HTMLElement {
         button.style.maxHeight = '2em'
         button.style.maxWidth = '2em'
     }
-    setAsDull() {
+    setAsBright() {
         const button = this.button
-        button.style.opacity = 1;
+        button.style.opacity = '1';
         button.dataset.bright = 'true';
         if (this.isParser) {
             button.style.fontSize = '1.3em';
@@ -67,7 +74,7 @@ class WindowLauncherButton extends HTMLElement {
         button.style.maxHeight = '3em'
         button.style.maxWidth = '3em'
     }
-    setAddWindowCallback(addWindowCallback) {
+    setAddWindowCallback(addWindowCallback: VoidEventCallback) {
         this.addWindow = addWindowCallback.bind(this);
         this.setClickListener();
     }
@@ -78,13 +85,13 @@ class WindowLauncherButton extends HTMLElement {
         return true;
     }
     reInitialize() {
-        if (this.button.style.opacity == 1) {
+        if (this.button.style.opacity === '1') {
             this.toggleOpacity()
         }
     }
-    remove(clickEvent) {
+    remove() {
         this.exists = false;
-        !!clickEvent && this.toggleOpacity()
+        this.toggleOpacity()
         super.remove();
     }
 }

@@ -1,5 +1,7 @@
-class ClickableBlock extends HTMLElement{
-    constructor(identifier, callback){
+import { VoidEventCallback } from '../../Types'
+
+export default class ClickableBlock extends HTMLElement{
+    constructor(identifier: string, callback: VoidEventCallback  ){
         super();
         this.dataset.id = identifier;
         this.onclick = callback;
@@ -7,6 +9,9 @@ class ClickableBlock extends HTMLElement{
         this.root.style.padding = '1rem .5rem';
         this.root.style.cursor = 'pointer';        
     }
+    root: HTMLDivElement;
+    private _singleSelect: boolean;
+    private _isSelected: boolean;
     get isSelected(){
         return this._isSelected;
     }
@@ -23,7 +28,7 @@ class ClickableBlock extends HTMLElement{
         this._singleSelect = bool;
         if(bool){
             this.root.style.cursor = 'initial';
-            this.onclick = '';
+            this.onclick = (e:PointerEvent) => null;
         }
     }
     get singleSelect(){
@@ -31,10 +36,10 @@ class ClickableBlock extends HTMLElement{
     }   
     connectedCallback(){
         if(![...this.children].length){
-            this.append(this.root, true);
+            this.append(this.root, this.root);
         }
     }
-    append(el, root){
+    append(el: HTMLElement, root?: HTMLElement){
         if(root){
             super.append(el);
             return;
