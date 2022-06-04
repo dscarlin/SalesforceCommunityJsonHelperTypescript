@@ -1,7 +1,6 @@
 import MetaData from './MetaData';
 import { ErrorMessage, UntypedPayload } from '../Types'
 
-
 export default class SalesforceNetworkPayload {
     constructor(jsonStr: string = '{}') {
         this.jsonStr = jsonStr && jsonStr.replace(/\r\n|\r|\n/g, '');
@@ -11,18 +10,22 @@ export default class SalesforceNetworkPayload {
         this.payloads = actions.map(this.parseAction.bind(this));
         this.errorMessage = ({ Error: "Did not find Your value"})
     }
-    jsonStr: string;
-    metadata: MetaData[];
-    currentMetadata: MetaData;
-    payloads: string[];
-    errorMessage: ErrorMessage;
-    _inputNode: UntypedPayload;
-    payload: UntypedPayload;
-    currentAction: UntypedPayload;
+    public metadata: MetaData[];
+    private payload: UntypedPayload;
+    private jsonStr: string;
+    private currentMetadata: MetaData;
+    private payloads: string[];
+    private errorMessage: ErrorMessage;
+    private _inputNode: UntypedPayload;
+    private currentAction: UntypedPayload;
 
 
     //computed properties
-    get inputNode(): UntypedPayload {
+    public get parsedString(): string {
+        const returnValue = this.payloads.length > 1 ? this.payloads : this.payload
+        return JSON.stringify(returnValue, null, 2);
+    }
+    private get inputNode(): UntypedPayload {
         this.trimMessageText()
         this._inputNode = this._inputNode || JSON.parse(this.jsonStr);
         if (Array.isArray(this._inputNode)) {
@@ -31,12 +34,8 @@ export default class SalesforceNetworkPayload {
         }
         return this._inputNode;
     }
-    get parsedString(): string {
-        const returnValue = this.payloads.length > 1 ? this.payloads : this.payload
-        return JSON.stringify(returnValue, null, 2);
-    }
     //methods
-    trimMessageText(): void{
+    private trimMessageText(): void{
         const jsonStr: boolean = !!this.jsonStr;
         const longerThanNineChars: boolean = this.jsonStr.length > 9;
         const stringBeginsWithMessageColon: boolean = jsonStr && longerThanNineChars &&  this.jsonStr.substring(0,9) == 'message: '
@@ -44,13 +43,13 @@ export default class SalesforceNetworkPayload {
         if(stringBeginsWithMessageColon) 
             this.jsonStr = this.jsonStr.slice(9);
     }
-    parseAction(currentAction: UntypedPayload): UntypedPayload {
+    private parseAction(currentAction: UntypedPayload): UntypedPayload {
         this.currentAction = currentAction;
         this.getParamsFromInputNode();
         this.metadata.push(this.currentMetadata);
         return this.payload;
     }
-    getParamsFromInputNode(): void {
+    private getParamsFromInputNode(): void {
         // Initial params from parsing input node 
         const { params, returnValue, result, callingDescriptor } = this.currentAction || {}
         const { returnValue:returnValueNested } = returnValue || {};
@@ -126,7 +125,7 @@ export default class SalesforceNetworkPayload {
         }
 
     }
-    hasOneOrMoreLabels(): boolean{
+    private hasOneOrMoreLabels(): boolean{
         return Object.values(this.currentMetadata).some(v => v)
     }
 

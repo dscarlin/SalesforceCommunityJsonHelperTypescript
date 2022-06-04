@@ -21,48 +21,48 @@ export default class JsonWindow extends DraggableMixin(HTMLElement) {
     }
 
     //properties
-    parsing: boolean;
-    isParser: boolean;
-    exists: boolean = false;
-    interval: number;
-    clientHeight: number;
-    expandedHeight: number;
-    networkPayloadString: string;
     header: HTMLDivElement;
-    buttonBlock: HTMLDivElement;
-    displayElement: HTMLDivElement;
-    parseButton: HTMLButtonElement;
-    copyButton: HTMLAnchorElement;
-    deleteButton: HTMLAnchorElement;
-    minimizeButton: HTMLAnchorElement;
-    textElement: HTMLTextAreaElement;
-    repeatableData: Repeat;
-    addButton: VoidMethodNoArg;
-    removeButton: VoidMethodNoArg;
+    exists: boolean = false;
+    readonly clientHeight: number;
+    private parsing: boolean;
+    private isParser: boolean;
+    private interval: number;
+    private expandedHeight: number;
+    private networkPayloadString: string;
+    private buttonBlock: HTMLDivElement;
+    private displayElement: HTMLDivElement;
+    private parseButton: HTMLButtonElement;
+    private copyButton: HTMLAnchorElement;
+    private deleteButton: HTMLAnchorElement;
+    private minimizeButton: HTMLAnchorElement;
+    private textElement: HTMLTextAreaElement;
+    private repeatableData: Repeat;
+    private addButton: VoidMethodNoArg;
+    private removeButton: VoidMethodNoArg;
 
     //computed properties
-    get omniScriptElement(): OmniScriptElement {
+    private get omniScriptElement(): OmniScriptElement {
         const omniScriptElements =
             [...document.querySelectorAll('[data-data-rendering-service-uid]')] as OmniScriptElement[];
         return omniScriptElements.filter(i => i.jsonDataStr)[0];
     }
-    get omniScriptParentElement(): HTMLElement {
+    private get omniScriptParentElement(): HTMLElement {
         return this.omniScriptElement.parentElement;
     }
-    get prettyPrintDataJson(): string {
+    private get prettyPrintDataJson(): string {
         const jsonToParse = this.networkPayloadString ||
             !this.isParser && this.omniScriptElement?.jsonDataStr ||
             '{}'
         return JSON.stringify(JSON.parse(jsonToParse), null, 2);
     }
-    get parsed(): boolean {
+    private get parsed(): boolean {
         return this.parseButton?.innerText == 'Clear'
     }
 
     /* methods */
 
     //element creation
-    create():JsonWindow {
+    private create():JsonWindow {
         //widget
         this.displayElement = document.createElement('div');
         //header
@@ -80,7 +80,7 @@ export default class JsonWindow extends DraggableMixin(HTMLElement) {
         this.append(this.displayElement)
         return this
     }
-    setStyle():JsonWindow {
+    private setStyle():JsonWindow {
         this.header.setAttribute('style', 'width: 100%; height: 2rem; cursor: move; display: flex; justify-content: space-between; font-size: 1.2rem; aligh-items: center');
         this.copyButton.setAttribute('style', 'width: fit-content; color: #35a4da;')
         this.deleteButton.setAttribute('style', 'width: fit-content; color: #35a4da; margin-left: .2rem; padding: 0 .2rem')
@@ -90,7 +90,7 @@ export default class JsonWindow extends DraggableMixin(HTMLElement) {
         this.displayElement.setAttribute('style', ' overflow: hidden; z-index: 1000; box-shadow: #000000 2px 2px 7px 2px; background: whitesmoke;padding: 0 .5em .5em; border-style: solid; border-width: 1px;border-color: #35a4da; border-radius: 0.5em; position: fixed; font-size: 1rem;')
         return this
     }
-    setListeners():JsonWindow {
+    private setListeners():JsonWindow {
         this.deleteButton.addEventListener('click', this.remove.bind(this))
         this.copyButton.addEventListener('click', this.copyToClipboard.bind(this))
         this.minimizeButton.addEventListener('click', this.toggleExpandWindow.bind(this))
@@ -98,7 +98,7 @@ export default class JsonWindow extends DraggableMixin(HTMLElement) {
         return this
 
     }
-    setOtherAttributes():JsonWindow {
+    private setOtherAttributes():JsonWindow {
         this.copyButton.innerHTML = 'Copy'
         this.deleteButton.innerHTML = 'X'
         this.minimizeButton.innerHTML = '-'
@@ -109,23 +109,23 @@ export default class JsonWindow extends DraggableMixin(HTMLElement) {
     }
 
     //adding to screen
-    addButtonsToHeader(): void {
+    private addButtonsToHeader(): void {
         this.header.append(this.copyButton)
         this.buttonBlock.append(this.minimizeButton)
         this.buttonBlock.append(this.deleteButton)
         this.header.append(this.buttonBlock)
     }
-    addHeaderToWindow(): void {
+    private addHeaderToWindow(): void {
         this.displayElement.append(this.header)
     }
-    addTextAreaToWindow(): void {
+    private addTextAreaToWindow(): void {
         this.displayElement.append(this.textElement)
         this.displayElement.append(this.repeatableData)
     }
-    addParseButtonToWindow(): void {
+    private addParseButtonToWindow(): void {
         this.isParser && (this.displayElement.append(this.parseButton))
     }
-    addToScreen(): void {
+    public addToScreen(): void {
         this.addButtonsToHeader();
         this.addHeaderToWindow();
         this.addTextAreaToWindow();
@@ -145,7 +145,7 @@ export default class JsonWindow extends DraggableMixin(HTMLElement) {
     }
 
     //data json viewer actions
-    updateWindowWithCurrentJsonData():void {
+    private updateWindowWithCurrentJsonData():void {
         if (this.exists) {
             this.textElement.innerHTML = this.prettyPrintDataJson;
             const border: boolean = true
@@ -154,12 +154,12 @@ export default class JsonWindow extends DraggableMixin(HTMLElement) {
             this.stopUpdatingDataJson();
         }
     }
-    stopUpdatingDataJson(): void {
+    private stopUpdatingDataJson(): void {
         clearInterval(this.interval)
     }
 
     //parser actions 
-    parseData():void {
+    private parseData():void {
         if (!this.parsed) {
             const unparsedPayload: string = this.textElement.value;
             const payload = new SalesforceNetworkPayload(unparsedPayload);
@@ -173,13 +173,13 @@ export default class JsonWindow extends DraggableMixin(HTMLElement) {
         this.flashTextArea();
         this.toggleParse();
     }
-    applyResponseToUI(parsedString?: string, metadata: MetaData[] = []) : void{
+    private applyResponseToUI(parsedString?: string, metadata: MetaData[] = []) : void{
         this.networkPayloadString = parsedString || '';
         const fieldUpdates: HTMLElement[][] = metadata.map(this.fieldLabelsAndValues);
         this.repeatableData.update(fieldUpdates);
         this.textElement.value = ''
     }
-    fieldLabelsAndValues(metadata: MetaData): HTMLElement[]{
+    private fieldLabelsAndValues(metadata: MetaData): HTMLElement[]{
         return Object.entries({
             'Calling Descriptor: ': metadata.callingDescriptor || "",
             'Class : ': metadata.className || "",
@@ -192,7 +192,7 @@ export default class JsonWindow extends DraggableMixin(HTMLElement) {
             'Result Type: ': metadata.resultType || ""
         }).map(([label, value]) => new DisplayField({ label, value }))
     }
-    toggleParse(): void {
+    private toggleParse(): void {
         const text:string = this.parsed ? 'Parse Payload' : 'Clear';
         if (this.parsed) {
             this.textElement.removeAttribute('disabled')
@@ -210,7 +210,7 @@ export default class JsonWindow extends DraggableMixin(HTMLElement) {
 
         this.parseButton.innerText = text
     }
-    selectPayloadPreview(e: Event, repeatElement: Repeat) {
+    private selectPayloadPreview(e: Event, repeatElement: Repeat) {
         const childBlocksExcludingSeparators = [...repeatElement.repeatedElementBox.children].filter((child, index, arr) => !(index % 2)) as ClickableBlock[]
         childBlocksExcludingSeparators.map((child, index, arr) => {
             if (arr.length < 2) {
@@ -224,7 +224,7 @@ export default class JsonWindow extends DraggableMixin(HTMLElement) {
             child.isSelected = false
         })
     }
-    updateTextAreaWidth() {
+    private updateTextAreaWidth() {
         if (!this.expandedHeight && !this.parsed) {
             this.displayElement.style.height = 'auto';
         }
@@ -257,7 +257,7 @@ export default class JsonWindow extends DraggableMixin(HTMLElement) {
 
 
     //common actions
-    toggleExpandWindow(e: PointerEvent) {
+    private toggleExpandWindow(e: PointerEvent) {
         if (this.expandedHeight) {
             this.displayElement.style.height = `${this.expandedHeight}px`;
             this.displayElement.style.height = `auto`;
@@ -268,7 +268,7 @@ export default class JsonWindow extends DraggableMixin(HTMLElement) {
             this.displayElement.style.height = '2rem';
         }
     }
-    flashTextArea(border?: boolean) {
+    private flashTextArea(border?: boolean) {
         let delay = 200;
         if (border) {
             this.textElement.style.outline = "solid #acd3e6 1px"
@@ -278,20 +278,14 @@ export default class JsonWindow extends DraggableMixin(HTMLElement) {
         }
         setTimeout(() => (this.textElement.style.backgroundColor = "unset", this.textElement.style.outline = "unset"), delay)
     }
-    copyToClipboard() {
+    private copyToClipboard() {
         //copy text
         const jsonDataText = this.textElement.innerHTML || this.textElement.value
         navigator.clipboard.writeText(jsonDataText);
         //flash background blue to signify copy was successful
         this.flashTextArea();
     }
-    remove() {
-        this.stopUpdatingDataJson();
-        this.addButton();
-        this.exists = false;
-        super.remove()
-    }
-    reInitialize() {
+    private reInitialize() {
         if (this.parsed) {
             this.toggleParse()
         }
@@ -304,12 +298,18 @@ export default class JsonWindow extends DraggableMixin(HTMLElement) {
         this.isParser && (this.textElement.value = '');
         // 
     }
+    public remove() {
+        this.stopUpdatingDataJson();
+        this.addButton();
+        this.exists = false;
+        super.remove()
+    }
 
     //communication with button
-    setRemoveButtonCallback(removeButtonCallback: VoidMethodNoArg) {
+    public setRemoveButtonCallback(removeButtonCallback: VoidMethodNoArg) {
         this.removeButton = removeButtonCallback;
     }
-    setAddButtonCallback(addButtonCallback: VoidMethodNoArg) {
+    public setAddButtonCallback(addButtonCallback: VoidMethodNoArg) {
         this.addButton = addButtonCallback;
     }
 

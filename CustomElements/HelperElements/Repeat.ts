@@ -15,42 +15,42 @@ export default class Repeat extends HTMLElement{
         this.repeatedElementBox.style.maxHeight = '11rem'
         this.repeatedElementBox.style.padding = '2px'
     }
-    elements: HTMLElement[][];
-    root: HTMLDivElement;
-    repeatedElementBox: HTMLDivElement;
-    numberOfResults: NumberOfResults;
-    currentElement: HTMLElement | null;
-    lastElementList: HTMLElement[];
+    readonly repeatedElementBox: HTMLDivElement;
+    readonly root: HTMLDivElement;
+    private elements: HTMLElement[][];
+    private numberOfResults: NumberOfResults;
+    private currentElement: HTMLElement | null;
+    private lastElementList: HTMLElement[];
 
-    onClickCallback: SelectPayloadCallback;
+    private onClickCallback: SelectPayloadCallback;
 
-    connectedCallback(){
+    private connectedCallback(){
         if(![...this.children].length){
             this.append(this.root);
         }
         this.update(this.elements);
     }
-    pointerClick(e: PointerEvent): void{
+    private pointerClick(e: PointerEvent): void{
         this.onClickCallback(e, this);
     }
-    update(elements: HTMLElement[][]){
+    public update(elements: HTMLElement[][]){
         this.elements = elements;
         this.reset();
         this.evaluate(elements);
     }
-    reset(){
+    private reset(){
         this.repeatedElementBox.textContent = '';
         this.numberOfResults.textContent = '';
         this.currentElement = null;
         this.lastElementList = [];
         this.singleOrMultipleElementDisplay()
     }
-    singleOrMultipleElementDisplay(){
+    private singleOrMultipleElementDisplay(){
         const repeat = this.elements.length > 1;
         this.repeatedElementBox.style.overflow = repeat ? 'scroll' : 'hidden'
         repeat && (this.numberOfResults.number = this.elements.length)
     }
-    evaluate(elements: HTMLElement[][] | HTMLElement[]){
+    private evaluate(elements: HTMLElement[][] | HTMLElement[]){
         elements.forEach( (element, index) => {
             const parent = (this.currentElement || this.repeatedElementBox)
             const listOfChildElements = Array.isArray(element)
@@ -82,7 +82,7 @@ export default class Repeat extends HTMLElement{
             parent.append(element);
         })
     }
-    addSeparator(parent: HTMLElement){
+    private addSeparator(parent: HTMLElement){
         const separatorLine = document.createElement('hr')
         separatorLine.style.margin = '0';
         parent.append(separatorLine); 

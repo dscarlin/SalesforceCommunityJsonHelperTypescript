@@ -8,22 +8,22 @@ export default class DisplayField extends HTMLElement{
         this.textValue = field.value;
     }
     /* properties */
-    labelValue: string;
-    textValue: string;
-    text: HTMLSpanElement;
-    copyToolTip: HTMLSpanElement
-    label: HTMLElement
+    private labelValue: string;
+    private textValue: string;
+    private text: HTMLSpanElement;
+    private copyToolTip: HTMLSpanElement
+    private label: HTMLElement
     /* computed properties */
-    set textContent(val) {
+    public set textContent(val) {
         this.style.display = val ?  'block' : 'none';
         this.text.style.cursor = 'pointer';
         this.text.textContent = val || '';
     }
-    get textContent(){
+    public  get textContent(){
         return this.text.textContent;
     }
     /* methods */
-    connectedCallback(){
+    private connectedCallback(){
 
         this.style.display = 'none';
         this.style.width = 'fit-content';
@@ -37,7 +37,7 @@ export default class DisplayField extends HTMLElement{
             this.append(this.copyToolTip);
         }
     }
-    create(){
+    private create(){
         this.copyToolTip = document.createElement('span');
         this.copyToolTip.style.visibility = 'hidden';
         this.copyToolTip.style.color = 'green';
@@ -49,7 +49,7 @@ export default class DisplayField extends HTMLElement{
         this.textContent = this.textValue; 
         this.text.addEventListener('click', this.handleClickCopy);
     }
-    handleClickCopy(e: PointerEvent){
+    private handleClickCopy(e: PointerEvent){
         const clickableBlock = this.parentElement.parentElement.parentElement as ClickableBlock;
         if(!clickableBlock.isSelected && !clickableBlock.singleSelect){
             return;
@@ -60,10 +60,10 @@ export default class DisplayField extends HTMLElement{
         navigator.clipboard.writeText(this.textContent);
         setTimeout(() => parent.hideCopyToolTip(), 500);
     }
-    showCopyToolTip(){
+    public showCopyToolTip(){
         this.copyToolTip.style.visibility = 'visible';
     }
-    hideCopyToolTip(){
+    public hideCopyToolTip(){
         this.copyToolTip.style.visibility = 'hidden'
     }
 }

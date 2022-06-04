@@ -9,13 +9,13 @@ export default class ClickableBlock extends HTMLElement{
         this.root.style.padding = '1rem .5rem';
         this.root.style.cursor = 'pointer';        
     }
-    root: HTMLDivElement;
+    public root: HTMLDivElement;
     private _singleSelect: boolean;
     private _isSelected: boolean;
-    get isSelected(){
+    public get isSelected(){
         return this._isSelected;
     }
-    set isSelected(bool){
+    public set isSelected(bool){
         this._isSelected = bool;
         if(bool){
             this.root.style.outline = '#35a4da solid 2px';
@@ -24,22 +24,22 @@ export default class ClickableBlock extends HTMLElement{
         }
         this.root.style.outline = 'initial';
     }
-    set singleSelect(bool){
+    public set singleSelect(bool){
         this._singleSelect = bool;
         if(bool){
             this.root.style.cursor = 'initial';
             this.onclick = (e:PointerEvent) => null;
         }
     }
-    get singleSelect(){
+    public get singleSelect(){
         return this._singleSelect;
     }   
-    connectedCallback(){
+    private connectedCallback(){
         if(![...this.children].length){
             this.append(this.root, this.root);
         }
     }
-    append(el: HTMLElement, root?: HTMLElement){
+    public append(el: HTMLElement, root?: HTMLElement){
         if(root){
             super.append(el);
             return;

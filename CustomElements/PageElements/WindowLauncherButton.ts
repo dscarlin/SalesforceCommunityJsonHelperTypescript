@@ -12,43 +12,43 @@ export default class WindowLauncherButton extends HTMLElement {
         this.toggleOpacity = this.toggleOpacity.bind(this)
     }
 
-    exists: boolean = false;
-    isParser: boolean;
-    button: HTMLButtonElement;
-    addWindow: VoidEventCallback;
+    public exists: boolean = false;
+    private isParser: boolean;
+    private button: HTMLButtonElement;
+    private addWindow: VoidEventCallback;
     //methods
-    create() {
+    private create() {
         this.button = document.createElement('button');
         this.append(this.button);
         return this;
     }
-    setHoverBehavior() {
+    private setHoverBehavior() {
         this.button.onmouseenter = this.toggleOpacity.bind(this);
         this.button.onmouseleave = this.toggleOpacity.bind(this);
         return this;
     }
-    setStyle() {
+    private setStyle() {
         this.button.setAttribute('style', 'position: fixed; right:0; top: 200px; z-index: 1000; font-weight: 1000;border: blue solid 1px;border-radius: 0.3rem 0 0 0.3rem;background: #35a4da; opacity: .6; padding-bottom: 4px;font-size: .75em;');
         this.isParser && (this.button.style.top = '250px');
         return this;
     }
-    setText() {
+    private setText() {
         const text = this.isParser ? '&#9729;' : '{}';
         this.button.innerHTML = text;
         return this;
     }
-    setClickListener() {
+    private setClickListener() {
         this.button.addEventListener('click', this.addWindow);
         return this;
     }
-    toggleOpacity(e?: PointerEvent) {
+    private toggleOpacity(e?: PointerEvent) {
         if (this.button.dataset.bright === 'true' || !e) {
             this.setAsDull();
         } else {
             this.setAsBright();
         }
     }
-    setAsDull() {
+    private setAsDull() {
         const button = this.button
         button.style.opacity = '.6';
         button.dataset.bright = 'false';
@@ -62,7 +62,7 @@ export default class WindowLauncherButton extends HTMLElement {
         button.style.maxHeight = '2em'
         button.style.maxWidth = '2em'
     }
-    setAsBright() {
+    private setAsBright() {
         const button = this.button
         button.style.opacity = '1';
         button.dataset.bright = 'true';
@@ -74,22 +74,22 @@ export default class WindowLauncherButton extends HTMLElement {
         button.style.maxHeight = '3em'
         button.style.maxWidth = '3em'
     }
-    setAddWindowCallback(addWindowCallback: VoidEventCallback) {
+    public setAddWindowCallback(addWindowCallback: VoidEventCallback) {
         this.addWindow = addWindowCallback.bind(this);
         this.setClickListener();
     }
-    addToScreen() {
+    public addToScreen() {
         this.exists = true;
         this.reInitialize();
         document.body.append(this);
         return true;
     }
-    reInitialize() {
+    private reInitialize() {
         if (this.button.style.opacity === '1') {
             this.toggleOpacity()
         }
     }
-    remove() {
+    public remove() {
         this.exists = false;
         this.toggleOpacity()
         super.remove();

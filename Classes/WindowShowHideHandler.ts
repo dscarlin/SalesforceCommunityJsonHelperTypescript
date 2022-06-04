@@ -6,37 +6,37 @@ export default class WindowShowHideHandler {
     constructor() {
         this.watchForBrowserHistoryStateChange();
     }
-    _window: JsonWindow;
-    _button: WindowLauncherButton;
-    _parser_window: JsonWindow;
-    _parser_button: WindowLauncherButton;
-    lastLocationChange: number;
-    pendingDelay: number;
+    private _window: JsonWindow;
+    private _button: WindowLauncherButton;
+    private _parser_window: JsonWindow;
+    private _parser_button: WindowLauncherButton;
+    private lastLocationChange: number;
+    private pendingDelay: number;
 
     //computed properties
-    get window() {
+    private get window() {
         if (this._window) return this._window;
         this._window = new JsonWindow()
         return this._window
     }
-    get button() {
+    private get button() {
         if (this._button) return this._button;
         this._button = new WindowLauncherButton()
         return this._button
     }
-    get parser_window() {
+    private get parser_window() {
         if (this._parser_window) return this._parser_window;
         this._parser_window = new JsonWindow('parser_')
         return this._parser_window
     }
-    get parser_button() {
+    private get parser_button() {
         if (this._parser_button) return this._parser_button;
         this._parser_button = new WindowLauncherButton('parser_')
         return this._parser_button
     }
     
     //methods
-    watchForBrowserHistoryStateChange(): void {
+    private watchForBrowserHistoryStateChange(): void {
         history.pushState = (f => function pushState() {
             var ret = f.apply(this, arguments);
             window.dispatchEvent(new Event('pushstate'));
@@ -57,7 +57,7 @@ export default class WindowShowHideHandler {
 
         window.addEventListener('locationchange', this.newDataJsonWindow.bind(this));
     }
-    delayedStart(delay: number, tries = 0): void {
+    public delayedStart(delay: number, tries = 0): void {
         const maximumAmountOfTries = 15;
         const time = new Date().getTime();
         const buttonAddedToScreen = this.addLauncherButtonsIfApplicable()
@@ -70,27 +70,27 @@ export default class WindowShowHideHandler {
             this.pendingDelay = setTimeout(() => this.delayedStart(delay, tries), delay) as unknown as number;
         }
     }
-    newDataJsonWindow(): void {
+    private newDataJsonWindow(): void {
         const currentTime = new Date().getTime();
         this.lastLocationChange = currentTime;
         this.window.exists = false;
         this.resetPendingDelay();
         this.delayedStart(2000);
     }
-    resetPendingDelay(){
+    private resetPendingDelay(){
         clearTimeout(this.pendingDelay); this.pendingDelay = null;
     }
-    allowWindowAndButtonToAddAndRemoveEachOther(parser=''): void{
+    private allowWindowAndButtonToAddAndRemoveEachOther(parser=''): void{
         const { button, window } = this.getWindowAndButton(parser);
         button.setAddWindowCallback(window.addToScreen.bind(window));
         window.setAddButtonCallback( button.addToScreen.bind( button));
         window.setRemoveButtonCallback( button.remove.bind( button));
     }
-    removeButton(){
+    private removeButton(){
         this.button.exists &&  this.button.remove();
 
     }
-    addLauncherButtonsIfApplicable(): boolean {
+    private addLauncherButtonsIfApplicable(): boolean {
         const isNotSalesforce = !document.querySelector('[data-aura-rendered-by],[data-aura-class]')
         if(isNotSalesforce) return false;
         this.addButton('parser_')
@@ -104,14 +104,14 @@ export default class WindowShowHideHandler {
         this.addButton();
         return true;
     }
-    addButton(parser=''): void{
+    private addButton(parser=''): void{
         const { button, window } = this.getWindowAndButton(parser);
         if(!button.exists && !window.exists){
             button.addToScreen();
             this.allowWindowAndButtonToAddAndRemoveEachOther(parser)
         }
     }
-    getWindowAndButton(parser = ''){
+    private getWindowAndButton(parser = ''){
         let window: JsonWindow, button: WindowLauncherButton;
         if(parser){
             window = this.parser_window;
