@@ -1,28 +1,41 @@
-type VoidEventCallback = {
-    (e: PointerEvent): void
+export type ExtendedHTMLElement = new (...args: any[]) => HTMLElement;
+export interface DraggableMixin extends HTMLElement{
+    draggableElement: HTMLElement;
+    header: HTMLElement;
+    pos1: number;
+    pos2: number;
+    pos3: number;
+    pos4: number;
+    elmnt: HTMLElement;
+    dragMouseDown: DragEvent;
+    elementDrag: DragEvent;
+    closeDragElement:DragEvent;
 }
-type VoidMethodNoArg = {
+
+export type DragEvent = {
+    (this: DraggableMixin, ev: MouseEvent): any
+}
+
+export type VoidMethodNoArg = {
     (): void
 }
-type OmniScriptElement = HTMLElement & {
+
+export type OmniScriptElement = HTMLElement & {
     jsonDataStr: string;
     parentElement: HTMLElement
 }
-type Field = {
+
+export type Field = {
     label: string,
     value: string
 }
-type ErrorMessage = {
+
+export type ErrorMessage = {
     Error: string;
 }
-type UntypedPayload = any;
-type Mixable = new (...args: any[]) => HTMLElement;
-export {
-    VoidEventCallback,
-    VoidMethodNoArg,
-    OmniScriptElement,
-    ErrorMessage,
-    UntypedPayload,
-    Mixable,
-    Field
-}
+
+export type UntypedPayload = any;
+
+
+
+

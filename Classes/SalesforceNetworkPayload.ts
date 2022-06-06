@@ -2,22 +2,26 @@ import MetaData from './MetaData';
 import { ErrorMessage, UntypedPayload } from '../Types'
 
 export default class SalesforceNetworkPayload {
-    constructor(jsonStr: string = '{}') {
+    constructor(jsonStr: string = '{}', showOptions: boolean) {
+        this.showOptions = showOptions;
         this.jsonStr = jsonStr && jsonStr.replace(/\r\n|\r|\n/g, '');
         const { actions = [] } = this.inputNode;
+        this.errorMessage = ({ Error: "Did not find Your value"})
         this.payload = this.errorMessage;
         this.metadata = [];
         this.payloads = actions.map(this.parseAction.bind(this));
-        this.errorMessage = ({ Error: "Did not find Your value"})
     }
+
     public metadata: MetaData[];
+    private showOptions: boolean;
     private payload: UntypedPayload;
+    private options: UntypedPayload;
     private jsonStr: string;
-    private currentMetadata: MetaData;
     private payloads: string[];
     private errorMessage: ErrorMessage;
     private _inputNode: UntypedPayload;
     private currentAction: UntypedPayload;
+    private currentMetadata!: MetaData;
 
 
     //computed properties
@@ -27,7 +31,7 @@ export default class SalesforceNetworkPayload {
     }
     private get inputNode(): UntypedPayload {
         this.trimMessageText()
-        this._inputNode = this._inputNode || JSON.parse(this.jsonStr);
+        this._inputNode = this._inputNode || JSON.parse(this.jsonStr || '{}');
         if (Array.isArray(this._inputNode)) {
             const actions = this._inputNode
             this._inputNode = { actions };
@@ -44,9 +48,16 @@ export default class SalesforceNetworkPayload {
             this.jsonStr = this.jsonStr.slice(9);
     }
     private parseAction(currentAction: UntypedPayload): UntypedPayload {
+        this.options = {}
         this.currentAction = currentAction;
         this.getParamsFromInputNode();
         this.metadata.push(this.currentMetadata);
+        if(this.showOptions && this.options){
+            this.payload = ({
+                payload: this.payload, 
+                options: this.options || {} 
+            })
+        }
         return this.payload;
     }
     private getParamsFromInputNode(): void {
@@ -67,27 +78,33 @@ export default class SalesforceNetworkPayload {
             case 'ComponentController':
             case 'FlexRuntime':
                 if(method == 'handleData'){
-                    if(this.payload.dataSourceMap)
+                    if(this.payload.dataSourceMap){
                         this.payload = JSON.parse(this.payload.dataSourceMap);
                         type = this.payload.type;
                         sMethodName = this.payload.value.ipMethod;
                         drBundle = this.payload.value.bundleName;
+                        this.options = JSON.parse(this.payload.value?.optionsMap || '{}')
                         this.payload = JSON.parse(this.payload.value?.inputMap || '{}');
+                    }
                 }
             break;
             case 'BusinessProcessDisplayController':
             case 'NewportUtilities':
                 switch(method){
                     case 'GenericInvoke2NoCont':
-                        if(this.payload.input)
+                        if(this.payload.input){
+                            this.options = JSON.parse(this.payload.options || '{}');
                             this.payload = JSON.parse(this.payload.input);
+                        }
                         if(this.payload.Bundle && this.payload.DRParams){
                             drBundle = this.payload.Bundle;
+                            this.options = this.payload.options || {};
                             this.payload = this.payload.DRParams;
                         }
                         if(this.payload.bundleName && this.payload.objectList){
                             drBundle = this.payload.bundleName;
                             this.payload = this.payload.objectList;
+                            //maybe options node => find this payload type again
                         }
                         break;
                     case 'LWCPrep':

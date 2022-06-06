@@ -1,13 +1,11 @@
 
-import { VoidMethodNoArg, OmniScriptElement } from '../../Types'
-import Repeat from '../HelperElements/Repeat';
-import ClickableBlock from '../HelperElements/ClickableBlock';
-import DisplayField from '../HelperElements/DisplayField';
-import DraggableMixin from '../../Classes/DraggableMixin';
 import SalesforceNetworkPayload from '../../Classes/SalesforceNetworkPayload';
+import { VoidMethodNoArg, OmniScriptElement } from '../../Types'
+import ClickableBlock from '../HelperElements/ClickableBlock';
+import DraggableMixin from '../../Classes/DraggableMixin';
+import DisplayField from '../HelperElements/DisplayField';
+import Repeat from '../HelperElements/Repeat';
 import MetaData from '../../Classes/MetaData';
-
-
 
 export default class JsonWindow extends DraggableMixin(HTMLElement) {
     constructor(parser: string ='') {
@@ -21,24 +19,26 @@ export default class JsonWindow extends DraggableMixin(HTMLElement) {
     }
 
     //properties
-    header: HTMLDivElement;
+    header!: HTMLDivElement;
     exists: boolean = false;
-    readonly clientHeight: number;
-    private parsing: boolean;
-    private isParser: boolean;
-    private interval: number;
+    readonly clientHeight!: number;
+    private parsing: boolean = false;
+    private isParser: boolean = false;
+    private interval: number = 0;
     private expandedHeight: number;
-    private networkPayloadString: string;
-    private buttonBlock: HTMLDivElement;
-    private displayElement: HTMLDivElement;
-    private parseButton: HTMLButtonElement;
-    private copyButton: HTMLAnchorElement;
-    private deleteButton: HTMLAnchorElement;
-    private minimizeButton: HTMLAnchorElement;
-    private textElement: HTMLTextAreaElement;
-    private repeatableData: Repeat;
-    private addButton: VoidMethodNoArg;
-    private removeButton: VoidMethodNoArg;
+    private networkPayloadString: string = '';
+    private buttonBlock!: HTMLDivElement;
+    private displayElement!: HTMLDivElement;
+    private parseButton!: HTMLButtonElement;
+    private copyButton!: HTMLSpanElement;
+    private deleteButton!: HTMLSpanElement;
+    private minimizeButton!: HTMLSpanElement;
+    private optionsCheckboxLabel!: HTMLSpanElement;
+    private optionsCheckbox!: HTMLInputElement;
+    private textElement!: HTMLTextAreaElement;
+    private repeatableData!: Repeat;
+    private addButton!: VoidMethodNoArg;
+    private removeButton!: VoidMethodNoArg;
 
     //computed properties
     private get omniScriptElement(): OmniScriptElement {
@@ -58,6 +58,9 @@ export default class JsonWindow extends DraggableMixin(HTMLElement) {
     private get parsed(): boolean {
         return this.parseButton?.innerText == 'Clear'
     }
+    private get showOptions(): boolean {
+        return this.optionsCheckbox.checked
+    }
 
     /* methods */
 
@@ -67,13 +70,16 @@ export default class JsonWindow extends DraggableMixin(HTMLElement) {
         this.displayElement = document.createElement('div');
         //header
         this.header = document.createElement('div');
-        this.copyButton = document.createElement('a');
-        this.deleteButton = document.createElement('a');
-        this.minimizeButton = document.createElement('a');
+        this.copyButton = document.createElement('span');
+        this.deleteButton = document.createElement('span');
+        this.minimizeButton = document.createElement('span');
         this.buttonBlock = document.createElement('div');
         //textArea
-        this.repeatableData = new Repeat([], this.selectPayloadPreview.bind(this));
         this.textElement = document.createElement('textarea');
+
+        this.optionsCheckboxLabel = document.createElement('span');
+        this.optionsCheckbox = document.createElement('input');
+        this.repeatableData = new Repeat([], this.selectPayloadPreview.bind(this));
         
         this.isParser && (this.parseButton = document.createElement('button'));
         this.draggableElement = this.displayElement;
@@ -81,11 +87,13 @@ export default class JsonWindow extends DraggableMixin(HTMLElement) {
         return this
     }
     private setStyle():JsonWindow {
+        this.buttonBlock.setAttribute('style','cursor:pointer');
+        this.optionsCheckboxLabel.setAttribute('style', 'margin-left: .3rem');
+        this.copyButton.setAttribute('style', 'width: fit-content; color: #35a4da;cursor: pointer')
+        this.minimizeButton.setAttribute('style', 'width: fit-content; color: #35a4da; margin-right: .2rem;')
+        this.deleteButton.setAttribute('style', 'width: fit-content; color: #35a4da; margin-left: .2rem; padding: 0 .2rem;')
         this.header.setAttribute('style', 'width: 100%; height: 2rem; cursor: move; display: flex; justify-content: space-between; font-size: 1.2rem; aligh-items: center');
-        this.copyButton.setAttribute('style', 'width: fit-content; color: #35a4da;')
-        this.deleteButton.setAttribute('style', 'width: fit-content; color: #35a4da; margin-left: .2rem; padding: 0 .2rem')
-        this.minimizeButton.setAttribute('style', 'width: fit-content; color: #35a4da; margin-right: .2rem')
-        this.textElement.setAttribute('style', '  min-width: 10rem; max-width: 100%; overflow: scroll; border-color: rgba(59, 59, 59, 0.3); border-radius: 0.25rem;')
+        this.textElement.setAttribute('style', '  min-width: 10rem; max-width: 100%; overflow: scroll; border-color: rgba(59, 59, 59, 0.3); border-radius: 0.25rem;display: block')
         this.isParser && (this.parseButton.setAttribute('style', 'width: fit-content; background-color: #35a4da; color: white; padding: .2rem .4rem; border-radius: .4rem; display: block; margin-left: auto; margin-top: .4rem;'))
         this.displayElement.setAttribute('style', ' overflow: hidden; z-index: 1000; box-shadow: #000000 2px 2px 7px 2px; background: whitesmoke;padding: 0 .5em .5em; border-style: solid; border-width: 1px;border-color: #35a4da; border-radius: 0.5em; position: fixed; font-size: 1rem;')
         return this
@@ -101,7 +109,9 @@ export default class JsonWindow extends DraggableMixin(HTMLElement) {
     private setOtherAttributes():JsonWindow {
         this.copyButton.innerHTML = 'Copy'
         this.deleteButton.innerHTML = 'X'
-        this.minimizeButton.innerHTML = '-'
+        this.optionsCheckboxLabel.innerHTML = 'Show Options'
+        this.optionsCheckbox.setAttribute('type', 'checkbox');
+        this.minimizeButton.innerHTML = '<strong>&#8210;</strong>'
         this.isParser && (this.parseButton.innerHTML = 'Parse Payload')
         new ResizeObserver(this.updateTextAreaWidth.bind(this)).observe(this.displayElement);
         !this.isParser && (this.textElement.setAttribute('disabled', ''));
@@ -120,6 +130,10 @@ export default class JsonWindow extends DraggableMixin(HTMLElement) {
     }
     private addTextAreaToWindow(): void {
         this.displayElement.append(this.textElement)
+        if(this.isParser){
+            this.displayElement.append(this.optionsCheckbox)
+            this.displayElement.append(this.optionsCheckboxLabel)
+        }
         this.displayElement.append(this.repeatableData)
     }
     private addParseButtonToWindow(): void {
@@ -162,7 +176,8 @@ export default class JsonWindow extends DraggableMixin(HTMLElement) {
     private parseData():void {
         if (!this.parsed) {
             const unparsedPayload: string = this.textElement.value;
-            const payload = new SalesforceNetworkPayload(unparsedPayload);
+            const showOptions = this.showOptions
+            const payload = new SalesforceNetworkPayload(unparsedPayload, showOptions);
             const { metadata, parsedString } = payload;
             this.applyResponseToUI(parsedString, metadata);
             this.textElement.value = this.prettyPrintDataJson;
@@ -173,6 +188,7 @@ export default class JsonWindow extends DraggableMixin(HTMLElement) {
         this.flashTextArea();
         this.toggleParse();
     }
+    
     private applyResponseToUI(parsedString?: string, metadata: MetaData[] = []) : void{
         this.networkPayloadString = parsedString || '';
         const fieldUpdates: HTMLElement[][] = metadata.map(this.fieldLabelsAndValues);
@@ -198,6 +214,8 @@ export default class JsonWindow extends DraggableMixin(HTMLElement) {
             this.textElement.removeAttribute('disabled')
             this.textElement.style.minWidth = '10rem';
             this.textElement.style.height = '8rem'
+            this.optionsCheckbox.style.display = 'inline'
+            this.optionsCheckboxLabel.style.display = 'inline'
             // this.textElement.style.width = 'unset'
             // this.textElement.style.height = 'unset'
             this.parsing = false;
@@ -205,18 +223,20 @@ export default class JsonWindow extends DraggableMixin(HTMLElement) {
 
         else {
             this.textElement.setAttribute('disabled', '');
+            this.optionsCheckbox.style.display = 'none'
+            this.optionsCheckboxLabel.style.display = 'none'
             this.parsing = true;
         }
 
         this.parseButton.innerText = text
     }
-    private selectPayloadPreview(e: Event, repeatElement: Repeat) {
+    private selectPayloadPreview(ev: MouseEvent, repeatElement: Repeat, ): any {
         const childBlocksExcludingSeparators = [...repeatElement.repeatedElementBox.children].filter((child, index, arr) => !(index % 2)) as ClickableBlock[]
         childBlocksExcludingSeparators.map((child, index, arr) => {
             if (arr.length < 2) {
                 return;
             }
-            if (e.currentTarget instanceof HTMLElement && index.toString() == e.currentTarget.dataset.id) {
+            if (ev.currentTarget instanceof HTMLElement && index.toString() == ev.currentTarget.dataset.id) {
                 this.textElement.value = JSON.stringify(JSON.parse(this.networkPayloadString)[index], null, 2);
                 child.isSelected = true
                 return;
@@ -257,7 +277,7 @@ export default class JsonWindow extends DraggableMixin(HTMLElement) {
 
 
     //common actions
-    private toggleExpandWindow(e: PointerEvent) {
+    private toggleExpandWindow(this: JsonWindow, ev: MouseEvent) {
         if (this.expandedHeight) {
             this.displayElement.style.height = `${this.expandedHeight}px`;
             this.displayElement.style.height = `auto`;

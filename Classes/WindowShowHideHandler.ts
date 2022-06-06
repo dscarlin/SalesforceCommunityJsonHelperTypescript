@@ -1,17 +1,17 @@
-import JsonWindow from "../CustomElements/PageElements/JsonWindow";
 import WindowLauncherButton from "../CustomElements/PageElements/WindowLauncherButton";
+import JsonWindow from "../CustomElements/PageElements/JsonWindow";
 import { OmniScriptElement } from '../Types'
 
 export default class WindowShowHideHandler {
     constructor() {
         this.watchForBrowserHistoryStateChange();
     }
-    private _window: JsonWindow;
-    private _button: WindowLauncherButton;
-    private _parser_window: JsonWindow;
-    private _parser_button: WindowLauncherButton;
-    private lastLocationChange: number;
-    private pendingDelay: number;
+    private _window!: JsonWindow;
+    private _button!: WindowLauncherButton;
+    private _parser_window!: JsonWindow;
+    private _parser_button!: WindowLauncherButton;
+    private lastLocationChange: number = 0;
+    private pendingDelay: number = 0;
 
     //computed properties
     private get window() {
@@ -37,15 +37,16 @@ export default class WindowShowHideHandler {
     
     //methods
     private watchForBrowserHistoryStateChange(): void {
-        history.pushState = (f => function pushState() {
-            var ret = f.apply(this, arguments);
+        history.pushState = (f => function pushState(this: any,...args:any) {
+            var ret = f.apply(this,args);
             window.dispatchEvent(new Event('pushstate'));
             window.dispatchEvent(new Event('locationchange'));
             return ret;
         })(history.pushState);
 
-        history.replaceState = (f => function replaceState() {
-            var ret = f.apply(this, arguments);
+        history.replaceState = (f => function replaceState(this: any,...args:any) {
+            
+            var ret = f.apply(this, args);
             window.dispatchEvent(new Event('replacestate'));
             window.dispatchEvent(new Event('locationchange'));
             return ret;
@@ -55,7 +56,7 @@ export default class WindowShowHideHandler {
             window.dispatchEvent(new Event('locationchange'));
         });
 
-        window.addEventListener('locationchange', this.newDataJsonWindow.bind(this));
+        window.addEventListener('locationchange', this.handleLocationChange.bind(this));
     }
     public delayedStart(delay: number, tries = 0): void {
         const maximumAmountOfTries = 15;
@@ -70,7 +71,7 @@ export default class WindowShowHideHandler {
             this.pendingDelay = setTimeout(() => this.delayedStart(delay, tries), delay) as unknown as number;
         }
     }
-    private newDataJsonWindow(): void {
+    private handleLocationChange(): void {
         const currentTime = new Date().getTime();
         this.lastLocationChange = currentTime;
         this.window.exists = false;
@@ -78,7 +79,7 @@ export default class WindowShowHideHandler {
         this.delayedStart(2000);
     }
     private resetPendingDelay(){
-        clearTimeout(this.pendingDelay); this.pendingDelay = null;
+        clearTimeout(this.pendingDelay); this.pendingDelay = 0;
     }
     private allowWindowAndButtonToAddAndRemoveEachOther(parser=''): void{
         const { button, window } = this.getWindowAndButton(parser);

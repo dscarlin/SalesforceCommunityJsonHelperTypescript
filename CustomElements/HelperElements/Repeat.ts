@@ -1,9 +1,9 @@
-import ClickableBlock from './ClickableBlock'
 import NumberOfResults from './NumberOfResults'
-type SelectPayloadCallback = {(e: PointerEvent, cmp: Repeat): void}
+import ClickableBlock from './ClickableBlock'
+type SelectRepeatBlockCallback = {( ev: MouseEvent, repeatElement: Repeat): any}
 
 export default class Repeat extends HTMLElement{
-    constructor(elements: ClickableBlock[][], onClickCallback: SelectPayloadCallback){
+    constructor(elements: ClickableBlock[][], onClickCallback: SelectRepeatBlockCallback){
         super();
         this.elements = elements;
         this.onClickCallback = onClickCallback;
@@ -19,10 +19,10 @@ export default class Repeat extends HTMLElement{
     readonly root: HTMLDivElement;
     private elements: HTMLElement[][];
     private numberOfResults: NumberOfResults;
-    private currentElement: HTMLElement | null;
-    private lastElementList: HTMLElement[];
+    private currentElement!: HTMLElement | null;
+    private lastElementList!: HTMLElement[];
 
-    private onClickCallback: SelectPayloadCallback;
+    private onClickCallback: SelectRepeatBlockCallback;
 
     private connectedCallback(){
         if(![...this.children].length){
@@ -30,8 +30,8 @@ export default class Repeat extends HTMLElement{
         }
         this.update(this.elements);
     }
-    private pointerClick(e: PointerEvent): void{
-        this.onClickCallback(e, this);
+    private pointerClick(ev: MouseEvent): any{
+        this.onClickCallback(ev, this);
     }
     public update(elements: HTMLElement[][]){
         this.elements = elements;
@@ -50,7 +50,7 @@ export default class Repeat extends HTMLElement{
         this.repeatedElementBox.style.overflow = repeat ? 'scroll' : 'hidden'
         repeat && (this.numberOfResults.number = this.elements.length)
     }
-    private evaluate(elements: HTMLElement[][] | HTMLElement[]){
+    private evaluate(elements: (HTMLElement[][] | HTMLElement[])){
         elements.forEach( (element, index) => {
             const parent = (this.currentElement || this.repeatedElementBox)
             const listOfChildElements = Array.isArray(element)

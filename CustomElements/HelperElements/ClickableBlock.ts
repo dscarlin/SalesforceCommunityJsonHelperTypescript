@@ -1,17 +1,20 @@
-import { VoidEventCallback } from '../../Types'
+import Repeat from './Repeat';
+type SelectBlockCallback = {( this: HTMLElement | Repeat, ev: MouseEvent): any}
 
 export default class ClickableBlock extends HTMLElement{
-    constructor(identifier: string, callback: VoidEventCallback  ){
+    constructor(identifier: string, callback: SelectBlockCallback  ){
         super();
         this.dataset.id = identifier;
-        this.onclick = callback;
+        this.clickCallback = callback;
+        this.addEventListener('click', callback);
         this.root = document.createElement('div');
         this.root.style.padding = '1rem .5rem';
         this.root.style.cursor = 'pointer';        
     }
     public root: HTMLDivElement;
-    private _singleSelect: boolean;
-    private _isSelected: boolean;
+    private _singleSelect: boolean = true;
+    private _isSelected: boolean = false;
+    private clickCallback: SelectBlockCallback;
     public get isSelected(){
         return this._isSelected;
     }
@@ -28,7 +31,7 @@ export default class ClickableBlock extends HTMLElement{
         this._singleSelect = bool;
         if(bool){
             this.root.style.cursor = 'initial';
-            this.onclick = (e:PointerEvent) => null;
+            this.removeEventListener('click', this.clickCallback);
         }
     }
     public get singleSelect(){
@@ -36,14 +39,10 @@ export default class ClickableBlock extends HTMLElement{
     }   
     private connectedCallback(){
         if(![...this.children].length){
-            this.append(this.root, this.root);
+            super.append(this.root);
         }
     }
-    public append(el: HTMLElement, root?: HTMLElement){
-        if(root){
-            super.append(el);
-            return;
-        }
+    public append(el: HTMLElement){
         this.root.append(el);
     }
 }

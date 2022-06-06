@@ -10,9 +10,9 @@ export default class DisplayField extends HTMLElement{
     /* properties */
     private labelValue: string;
     private textValue: string;
-    private text: HTMLSpanElement;
-    private copyToolTip: HTMLSpanElement
-    private label: HTMLElement
+    private text!: HTMLSpanElement;
+    private copyToolTip!: HTMLSpanElement
+    private label!: HTMLElement
     /* computed properties */
     public set textContent(val) {
         this.style.display = val ?  'block' : 'none';
@@ -49,15 +49,15 @@ export default class DisplayField extends HTMLElement{
         this.textContent = this.textValue; 
         this.text.addEventListener('click', this.handleClickCopy);
     }
-    private handleClickCopy(e: PointerEvent){
-        const clickableBlock = this.parentElement.parentElement.parentElement as ClickableBlock;
+    private handleClickCopy(this: HTMLSpanElement, ev: MouseEvent){
+        const clickableBlock = this.parentElement?.parentElement?.parentElement as ClickableBlock;
         if(!clickableBlock.isSelected && !clickableBlock.singleSelect){
             return;
         } 
-        e.stopPropagation();
+        ev.stopPropagation();
         const parent = this.parentElement as DisplayField;
         parent.showCopyToolTip();
-        navigator.clipboard.writeText(this.textContent);
+        navigator.clipboard.writeText(this.textContent || '');
         setTimeout(() => parent.hideCopyToolTip(), 500);
     }
     public showCopyToolTip(){

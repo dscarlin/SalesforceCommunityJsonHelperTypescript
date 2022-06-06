@@ -1,6 +1,7 @@
-
-import { VoidEventCallback } from '../../Types'
-
+import JsonWindow from './JsonWindow';
+type ButtonMouseEvent = 
+  { (this: JsonWindow, ev: MouseEvent): any } 
+& { (this: HTMLButtonElement, ev: MouseEvent): any }
 export default class WindowLauncherButton extends HTMLElement {
     constructor(parser: string = '') {
         super();
@@ -13,9 +14,9 @@ export default class WindowLauncherButton extends HTMLElement {
     }
 
     public exists: boolean = false;
-    private isParser: boolean;
-    private button: HTMLButtonElement;
-    private addWindow: VoidEventCallback;
+    private isParser: boolean = false;
+    private button!: HTMLButtonElement;
+    private addWindow!: ButtonMouseEvent;
     //methods
     private create() {
         this.button = document.createElement('button');
@@ -41,8 +42,9 @@ export default class WindowLauncherButton extends HTMLElement {
         this.button.addEventListener('click', this.addWindow);
         return this;
     }
-    private toggleOpacity(e?: PointerEvent) {
-        if (this.button.dataset.bright === 'true' || !e) {
+
+    private toggleOpacity(this: WindowLauncherButton, ev?: MouseEvent) {
+        if (this.button.dataset.bright === 'true' || !ev) {
             this.setAsDull();
         } else {
             this.setAsBright();
@@ -74,8 +76,9 @@ export default class WindowLauncherButton extends HTMLElement {
         button.style.maxHeight = '3em'
         button.style.maxWidth = '3em'
     }
-    public setAddWindowCallback(addWindowCallback: VoidEventCallback) {
-        this.addWindow = addWindowCallback.bind(this);
+    public setAddWindowCallback(addWindowCallback: ButtonMouseEvent) {
+        this.addWindow = addWindowCallback;
+
         this.setClickListener();
     }
     public addToScreen() {
